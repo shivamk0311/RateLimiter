@@ -6,6 +6,7 @@ function App() {
 
   const [data,setData] = useState(null);
   const [error,setError] = useState("");
+
   const StatCard = ({ label, value, color, small }) => (
     <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
       <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">{label}</p>
@@ -14,6 +15,41 @@ function App() {
       </p>
     </div>
   );
+
+  const callPublicRoutes = async ()  => {
+    try{
+      setError("");
+
+      const response = await client.get("/test/public")
+      setData(response.data);
+    }catch(err){
+      if(err.response){
+        setData(err.response.data);
+        setError(`Request failed with status: ${err.response.status}`)
+      }else{
+        setError('Failed to connect to backend.')
+      }
+    }
+  }
+  const callProtectedRoutes = async ()  => {
+    try{
+      setError("");
+
+      const response = await client.get("/test/protected", {
+        headers: {
+          "x-api-key" : "user345",
+        }
+      })
+      setData(response.data);
+    }catch(err){
+      if(err.response){
+        setData(err.response.data);
+        setError(`Request failed with status: ${err.response.status}`)
+      }else{
+        setError('Failed to connect to backend.')
+      }
+    }
+  }
 
   const checkRateLimit = async () => {
     try{
@@ -45,7 +81,7 @@ function App() {
           <h1 className="text-4xl font-semibold tracking-tight text-center my-6">
             Rate Limiter Dashboard
           </h1>
-          <div className='flex flex-col items-center gap-6'>
+          {/* <div className='flex flex-col items-center gap-6'>
             <button onClick={checkRateLimit} 
               className='px-8 py-3 font-semibold bg-green-800 rounded-full hover:bg-green-700 transition-all shadow-lg shadow-emerald-900/20 active:scale-95'>
               Send Request
@@ -76,6 +112,48 @@ function App() {
                   <StatCard label="Resets In" value={`${data.resetInSeconds}s`} color="text-amber-400" />
                   <StatCard label="API Key" value={data.apikey} color="text-slate-300" small />
                   <StatCard label="Limit" value={data.limit} color="text-slate-300" />
+                </div>
+              </div>
+            )}
+          </div> */}
+
+          <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow-sm border border-slate-100 my-6">
+            {/* Button Group */}
+            <div className="flex gap-4 mb-8">
+              <button 
+                onClick={callPublicRoutes} 
+                className="flex-1 px-4 py-3 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium rounded-xl transition-all border border-slate-200 active:scale-95"
+              >
+                Public Route
+              </button>
+
+              <button 
+                onClick={callProtectedRoutes} 
+                className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition-all shadow-md shadow-indigo-100 active:scale-95"
+              >
+                Protected Route
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+                <p className="text-sm text-red-600 flex items-center gap-2">
+                  <span className="font-bold">!</span> {error}
+                </p>
+              </div>
+            )}
+
+            {/* Data Display */}
+            {data && (
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Server Response
+                </h3>
+                <div className="bg-slate-900 rounded-xl p-4 overflow-hidden">
+                  <pre className="text-sm font-mono text-emerald-400 overflow-x-auto leading-relaxed">
+                    {JSON.stringify(data, null, 2)}
+                  </pre>
                 </div>
               </div>
             )}

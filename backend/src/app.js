@@ -2,6 +2,7 @@ const express = require("express");
 const pool = require("./config/db.js");
 const cors = require("cors");
 const rateLimitRoutes = require("./routes/rateLimitRoutes.js");
+const testRoutes = require("./routes/testRoutes.js");
 
 const app = express();
 
@@ -26,7 +27,8 @@ app.get("/api/db-test", async (req, res) => {
     }   
 })
 
-app.use("/api/rate-limit",rateLimitRoutes);
+// app.use("/api/rate-limit",rateLimitRoutes);
+app.use("/api/test", testRoutes);
 
 module.exports = app;
 
